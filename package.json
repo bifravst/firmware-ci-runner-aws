@@ -1,0 +1,35 @@
+{
+  "name": "@bifravst/device-ci",
+  "version": "0.0.0-development",
+  "description": "Exposes real nRF9160 hardware to be used for end-to-end tests",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/bifravst/device-ci.git"
+  },
+  "keywords": [
+    "Cloud",
+    "IoT",
+    "bifravst",
+    "AssetTracker",
+    "NordicSemiconductor"
+  ],
+  "author": "Nordic Semiconductor ASA | nordicsemi.no",
+  "license": "BSD-3-Clause",
+  "bugs": {
+    "url": "https://github.com/bifravst/device-ci/issues"
+  },
+  "homepage": "https://github.com/bifravst/device-ci#readme",
+  "dependencies": {
+    "@serialport/parser-readline": "^9.0.1",
+    "chalk": "^4.1.0",
+    "serialport": "^9.0.1"
+  },
+  "devDependencies": {
+    "@bifravst/code-style": "^8.0.94",
+    "prettier": "^2.1.2"
+  }
+}
