@@ -1,5 +1,5 @@
 {
-  "name": "@bifravst/device-ci",
+  "name": "@bifravst/firmware-ci",
   "version": "0.0.0-development",
   "description": "Exposes real nRF9160 hardware to be used for end-to-end tests",
   "main": "index.js",
@@ -8,7 +8,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/bifravst/device-ci.git"
+    "url": "git+https://github.com/bifravst/firmware-ci.git"
   },
   "keywords": [
     "Cloud",
@@ -20,9 +20,9 @@
   "author": "Nordic Semiconductor ASA | nordicsemi.no",
   "license": "BSD-3-Clause",
   "bugs": {
-    "url": "https://github.com/bifravst/device-ci/issues"
+    "url": "https://github.com/bifravst/firmware-ci/issues"
   },
-  "homepage": "https://github.com/bifravst/device-ci#readme",
+  "homepage": "https://github.com/bifravst/firmware-ci#readme",
   "dependencies": {
     "@serialport/parser-readline": "^9.0.1",
     "aws-iot-device-sdk": "^2.2.6",

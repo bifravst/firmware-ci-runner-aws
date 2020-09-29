@@ -9,7 +9,7 @@ const path = require('path')
 const { v4 } = require('uuid')
 
 const host = 'a3ui73qrzbn6xp-ats.iot.eu-central-1.amazonaws.com'
-const clientId = 'device-ci-01'
+const clientId = 'firmware-ci-01'
 
 const jobDefaults = {
 	timeoutInMinutes: 2,
