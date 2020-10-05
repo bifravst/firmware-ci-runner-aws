@@ -11,7 +11,10 @@ const ciDeviceName = process.env.CI_DEVICE ?? ''
 
 const CLI = async ({ isCI }: { isCI: boolean }) => {
 	const { version } = JSON.parse(
-		await fs.readFile(path.join('..', '..', 'package.json'), 'utf-8'),
+		await fs.readFile(
+			path.normalize(path.join(__dirname, '..', '..', 'package.json')),
+			'utf-8',
+		),
 	)
 
 	program.description(

@@ -3,6 +3,7 @@ import { CommandDefinition } from './CommandDefinition'
 import * as chalk from 'chalk'
 import { S3, Iot } from 'aws-sdk'
 import { promises as fs } from 'fs'
+import { FirmwareCIJobDocument } from '../../runner/job'
 
 const queryString = (s: Record<string, any>): string =>
 	Object.entries(s)
@@ -56,7 +57,7 @@ export const scheduleJobCommand = ({
 			await fs.readFile(certificateJSON, 'utf-8'),
 		)
 
-		const jobDocument = {
+		const jobDocument: FirmwareCIJobDocument = {
 			reportUrl,
 			fw: firmwareUrl,
 			target: `${target ?? defaultTarget}:${network ?? defaultNetwork}`,
