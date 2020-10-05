@@ -28,10 +28,10 @@
     "aws-iot-device-sdk": "^2.2.6",
     "chalk": "^4.1.0",
     "serialport": "^9.0.1",
-    "uuid": "^8.3.0"
+    "uuid": "8.3.1"
   },
   "devDependencies": {
-    "@bifravst/code-style": "8.0.98",
+    "@bifravst/code-style": "8.0.115",
     "prettier": "^2.1.2"
   }
 }
