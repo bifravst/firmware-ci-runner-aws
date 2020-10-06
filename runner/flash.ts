@@ -35,6 +35,14 @@ export const flash = async (
 			script,
 		])
 		const log: string[] = []
+		let timedOut = false
+		const t = setTimeout(() => {
+			flash.kill('SIGHUP')
+			timedOut = true
+			return reject(
+				new Error(`Timeout while waiting for flashing to complete.`),
+			)
+		}, 60 * 1000)
 		flash.stdout.on('data', (data) => {
 			data
 				.toString()
@@ -57,12 +65,17 @@ export const flash = async (
 		})
 
 		flash.on('exit', () => {
+			clearTimeout(t)
 			if (log.join('\n').includes('Failed to open file.')) {
 				warn(`Flash ${info}`, 'Failed to open file.')
 				return reject()
 			}
-			success(`Flash ${info}`, hexfile)
-			resolve(log)
+			if (log.join('\n').includes('Script processing completed.')) {
+				success(`Flash ${info}`, hexfile)
+				resolve(log)
+			} else if (!timedOut) {
+				reject(new Error('Flashing did not succeed for unknown reasons.'))
+			}
 		})
 	})
 }

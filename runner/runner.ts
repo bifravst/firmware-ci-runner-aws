@@ -72,11 +72,11 @@ const main = async () => {
 							progress: 'running',
 						})
 						const report: Record<string, any> = {}
+						let connections
 						try {
-							const { result, connections, deviceLog, flashLog } = await runJob(
-								doc,
-								hexFile,
-							)
+							const run = await runJob(doc, hexFile)
+							const { result, deviceLog, flashLog } = run
+							connections = run.connections
 							job.succeeded({
 								progress: 'success',
 							})
@@ -85,12 +85,9 @@ const main = async () => {
 							report.flashLog = flashLog
 							report.deviceLog = deviceLog
 							report.connections = connections
-							// Reset FW
-							await flash('AT Host', 'thingy91_at_client_increased_buf.hex')
-							Object.values(connections).map(({ end }) => end())
 						} catch (err) {
 							warn(job.id, 'failed', err.message)
-							report.error = err
+							report.error = err.message
 							job.failed({
 								progress: err.message,
 							})
@@ -101,6 +98,14 @@ const main = async () => {
 						// Remove hexfile
 						await fs.unlink(hexFile)
 						success(job.id, 'HEX file deleted')
+						// Reset FW
+						try {
+							await flash('AT Host', 'thingy91_at_client_increased_buf.hex')
+						} catch (err) {
+							warn(`Failed to reset programmer: ${err.message}`)
+						}
+						if (connections !== undefined)
+							Object.values(connections).map(({ end }) => end())
 					} else {
 						warn(clientId, err)
 					}
