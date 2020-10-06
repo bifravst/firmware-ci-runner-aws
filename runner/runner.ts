@@ -71,8 +71,9 @@ const main = async () => {
 						job.inProgress({
 							progress: 'running',
 						})
+						const report: Record<string, any> = {}
 						try {
-							const { result, connections, flashLog } = await runJob(
+							const { result, connections, deviceLog, flashLog } = await runJob(
 								doc,
 								hexFile,
 							)

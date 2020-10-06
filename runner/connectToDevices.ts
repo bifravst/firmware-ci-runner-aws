@@ -1,11 +1,14 @@
 import { connect, Connection } from './connect'
 import { listDevices } from './listDevices'
 
-export const connectToDevices = async (
-	onIMEI: () => void,
-): Promise<Record<string, Connection>> => {
+export const connectToDevices = async ({
+	onIMEI,
+}: {
+	onIMEI: (connection: Connection) => void
+}): Promise<[Record<string, Connection>, string[]]> => {
 	const connections = {} as Record<string, Connection>
-	const c = connect(connections, onIMEI)
+	const deviceLog: string[] = []
+	const c = connect(connections, deviceLog, onIMEI)
 	const serialDevices = await listDevices()
 	if (serialDevices.length === 0) {
 		throw new Error(`No serial devices connected.`)
@@ -13,5 +16,5 @@ export const connectToDevices = async (
 	serialDevices.map((device) => {
 		c(device)
 	})
-	return connections
+	return [connections, deviceLog]
 }

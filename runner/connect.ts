@@ -1,22 +1,25 @@
 import * as SerialPort from 'serialport'
 import * as Readline from '@serialport/parser-readline'
 import { progress, success, debug, warn } from './log'
+import { atCMD } from './atCMD'
 
 export type Connection = {
 	isDK?: boolean
-	ATCmdResult: string[]
-	log: string[]
 	IMEI?: number
 	end: () => void
+	at: (cmd: string) => Promise<string[]>
 }
 
 export const connect = (
 	connections: Record<string, Connection>,
-	onIMEI: (IMEI: number) => void,
+	deviceLog: string[],
+	onIMEI: (connection: Connection) => void,
+	delimiter = '\r\n',
 ) => (device: string): void => {
 	progress(`Connecting to`, device)
 	const port = new SerialPort(device, { baudRate: 115200, lock: false })
-	const parser = port.pipe(new Readline({ delimiter: '\n' }))
+	const parser = port.pipe(new Readline({ delimiter }))
+	const at = atCMD(device, port, parser, delimiter)
 
 	const end = () => {
 		progress(device, 'closing port')
@@ -27,43 +30,24 @@ export const connect = (
 	port.on('open', () => {
 		success(device, `connected`)
 	})
-	parser.on('data', (data: string) => {
-		if (connections[device]?.isDK ?? false) {
+	parser.on('data', async (data: string) => {
+		if ((connections[device]?.isDK ?? false) !== true) {
 			debug(device, data)
-			connections[device].log.push(
+			deviceLog.push(
 				`${new Date().toISOString()}\t${device}\t${data.trimEnd()}`,
 			)
 		}
-		if (connections[device].ATCmdResult.length > 0) {
-			if (data === 'OK\r') {
-				const IMEI = [...connections[device].ATCmdResult].join('')
-				success(device, 'IMEI', IMEI)
-				connections[device].ATCmdResult = []
-				connections[device].IMEI = parseInt(IMEI, 10)
-				onIMEI(connections[device].IMEI as number)
-				return
-			} else if (data === 'ERROR\r') {
-				warn(device, 'Failed to query for IMEI')
-				connections[device].ATCmdResult = []
-				return
-			}
-			connections[device].ATCmdResult.push(data.trim())
-		}
 		if (data.includes('DK Uptime is')) {
-			if (connections[device]?.isDK ?? false)
+			if (connections[device]?.isDK === undefined)
 				warn(device, 'is a DK: supressing future output')
 			connections[device].isDK = true
 		}
 		if (data.includes('The AT host sample started')) {
 			progress(device, 'AT host is running')
 			if (connections[device].IMEI === undefined) {
-				port.write('AT+CGSN\r\n', (err) => {
-					if (err) {
-						warn(device, 'Error on write: ', err.message)
-					}
-					progress(device, 'AT+CGSN')
-					connections[device].ATCmdResult = []
-				})
+				connections[device].IMEI = parseInt((await at('AT+CGSN')).join(''), 10)
+				progress(device, 'IMEI:', connections[device].IMEI)
+				onIMEI(connections[device])
 			}
 		}
 	})
@@ -75,8 +59,7 @@ export const connect = (
 		end()
 	})
 	connections[device] = {
+		at,
 		end,
-		ATCmdResult: [],
-		log: [],
 	}
 }
