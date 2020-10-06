@@ -1,6 +1,7 @@
 import * as program from 'commander'
 import * as chalk from 'chalk'
 import { scheduleJobCommand } from './commands/scheduleJob'
+import { waitForJobCommand } from './commands/waitForJob'
 import * as path from 'path'
 import { STS } from 'aws-sdk'
 import { promises as fs } from 'fs'
@@ -31,6 +32,9 @@ const CLI = async ({ isCI }: { isCI: boolean }) => {
 			bucketName,
 			region,
 			ciDeviceArn: `arn:aws:iot:${region}:${accountId}:thing/${ciDeviceName}`,
+		}),
+		waitForJobCommand({
+			region,
 		}),
 	]
 

@@ -94,6 +94,9 @@ export const scheduleJobCommand = ({
 			chalk.blueBright(jobId),
 			chalk.green('created.'),
 		)
+		console.log()
+		console.log(chalk.green('You can observe the job execution using:'))
+		console.log(chalk.greenBright('node cli wait'), chalk.blueBright(jobId))
 	},
 	help: 'Schedules a new Firmware CI job.',
 })
