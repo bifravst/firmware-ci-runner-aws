@@ -2,6 +2,7 @@ export const defaultTimeoutInMinutes = 2
 
 export type FirmwareCIJobDocument = {
 	timeoutInMinutes?: number
+	reportPublishUrl: string
 	reportUrl: string
 	fw: string
 	target: string

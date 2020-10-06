@@ -11,6 +11,7 @@ import {
 	FirmwareCIJobDocument,
 	RunningFirmwareCIJobDocument,
 } from './job'
+import { uploadToS3 } from './publishReport'
 
 const { clientId, brokerHostname, caCert, clientCert, privateKey } = JSON.parse(
 	process.env.CREDENTIALS ?? '',
@@ -79,30 +80,23 @@ const main = async () => {
 								progress: 'success',
 							})
 							success(job.id, 'success')
-							console.log(
-								JSON.stringify(
-									{
-										job,
-										result,
-									},
-									null,
-									2,
-								),
-							)
-							console.log(flashLog.join('\n'))
-							Object.entries(connections).map(([k, v]) => {
-								console.log(k, v.IMEI !== undefined ? `IMEI: ${v.IMEI}` : '')
-								console.log(v.log.join('\n'))
-							})
+							report.result = result
+							report.flashLog = flashLog
+							report.deviceLog = deviceLog
+							report.connections = connections
 							// Reset FW
 							await flash('AT Host', 'thingy91_at_client_increased_buf.hex')
 							Object.values(connections).map(({ end }) => end())
 						} catch (err) {
 							warn(job.id, 'failed', err.message)
+							report.error = err
 							job.failed({
 								progress: err.message,
 							})
 						}
+						// Publish report
+						progress(`Publishing report to`, doc.reportUrl)
+						await uploadToS3(doc.reportPublishUrl, report)
 						// Remove hexfile
 						await fs.unlink(hexFile)
 						success(job.id, 'HEX file deleted')

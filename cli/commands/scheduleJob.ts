@@ -51,14 +51,14 @@ export const scheduleJobCommand = ({
 				key: `${jobId}.json`,
 			},
 		})
-		const reportUrl = `${url}?${queryString(fields)}`
 
 		const { caCert, clientCert, privateKey } = JSON.parse(
 			await fs.readFile(certificateJSON, 'utf-8'),
 		)
 
 		const jobDocument: FirmwareCIJobDocument = {
-			reportUrl,
+			reportPublishUrl: `${url}?${queryString(fields)}`,
+			reportUrl: `https://${bucketName}.s3.${region}.amazonaws.com/${jobId}.json`,
 			fw: firmwareUrl,
 			target: `${target ?? defaultTarget}:${network ?? defaultNetwork}`,
 			credentials: {
