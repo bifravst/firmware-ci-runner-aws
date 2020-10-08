@@ -2,6 +2,7 @@
   "name": "@bifravst/firmware-ci",
   "version": "0.0.0-development",
   "description": "Exposes real nRF9160 hardware to be used for end-to-end tests",
+  "main": "./dist/export.js",
   "bin": "./cli/index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
@@ -73,7 +74,11 @@
   },
   "release": {
     "branches": [
-      "saga"
+      "saga",
+      {
+        "name": "!(saga)",
+        "prerelease": true
+      }
     ],
     "remoteTags": true
   },

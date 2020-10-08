@@ -1,5 +1,4 @@
 import * as chalk from 'chalk'
-import * as path from 'path'
 import { jobs, job } from 'aws-iot-device-sdk'
 import { progress, success, warn } from './log'
 import { promises as fs } from 'fs'
@@ -13,21 +12,20 @@ import {
 } from './job'
 import { uploadToS3 } from './publishReport'
 
-const { clientId, brokerHostname, caCert, clientCert, privateKey } = JSON.parse(
-	process.env.CREDENTIALS ?? '',
-)
-
 const isUndefined = (a?: any): boolean => a === null || a === undefined
 
-const main = async () => {
-	const { version } = JSON.parse(
-		await fs.readFile(
-			path.normalize(path.join(__dirname, '..', '..', 'package.json')),
-			'utf-8',
-		),
-	)
-
-	console.log(chalk.grey('  Firmware CI version: '), chalk.yellow(version))
+export const runner = async ({
+	certificateJSON,
+}: {
+	certificateJSON: string
+}): Promise<void> => {
+	const {
+		clientId,
+		brokerHostname,
+		caCert,
+		clientCert,
+		privateKey,
+	} = JSON.parse(await fs.readFile(certificateJSON, 'utf-8'))
 	console.log(
 		chalk.grey('  MQTT endpoint:       '),
 		chalk.yellow(brokerHostname),
@@ -126,5 +124,3 @@ const main = async () => {
 		connection.on('error', reject)
 	})
 }
-
-void main()

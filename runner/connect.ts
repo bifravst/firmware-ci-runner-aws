@@ -19,7 +19,10 @@ export const connect = (
 	progress(`Connecting to`, device)
 	const port = new SerialPort(device, { baudRate: 115200, lock: false })
 	const parser = port.pipe(new Readline({ delimiter }))
-	const at = atCMD(device, port, parser, delimiter)
+	const at = atCMD(device, port, parser, delimiter, (...args) => {
+		deviceLog.push(`${new Date().toISOString()}\t${device}\t${args.join('\t')}`)
+		progress(device, ...args)
+	})
 
 	const end = () => {
 		progress(device, 'closing port')
