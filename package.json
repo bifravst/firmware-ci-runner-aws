@@ -44,7 +44,7 @@
     "@types/aws-iot-device-sdk": "2.2.2",
     "@types/chalk": "2.2.0",
     "@types/commander": "2.12.2",
-    "@types/node": "14.11.9",
+    "@types/node": "14.11.10",
     "@types/node-fetch": "2.5.7",
     "@types/serialport": "8.0.1",
     "@types/uuid": "8.3.0",
