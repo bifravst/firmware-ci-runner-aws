@@ -61,8 +61,6 @@ export const schedule = async ({
 		},
 	}
 
-	console.log(jobDocument)
-
 	await iot
 		.createJob({
 			jobId,

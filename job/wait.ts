@@ -1,6 +1,7 @@
 import * as chalk from 'chalk'
 import { Iot } from 'aws-sdk'
 import { progress, success, warn } from '../runner/log'
+import { FirmwareCIJobDocument } from '../runner/job'
 
 export const defaultTimeout = 300
 export const defaultInterval = 30
@@ -15,7 +16,10 @@ export const wait = async ({
 	timeout?: number
 	interval?: number
 	jobId: string
-}): Promise<Iot.Job> =>
+}): Promise<{
+	job: Iot.Job
+	jobDocument: FirmwareCIJobDocument
+}> =>
 	new Promise((resolve, reject) => {
 		const t = setTimeout(
 			() =>
@@ -48,7 +52,18 @@ export const wait = async ({
 					success(
 						`${job.jobProcessDetails?.numberOfFailedThings} failed executions.`,
 					)
-					return resolve(job)
+					return resolve({
+						job,
+						jobDocument: JSON.parse(
+							(
+								await iot
+									.getJobDocument({
+										jobId: job.jobId as string,
+									})
+									.promise()
+							).document as string,
+						) as FirmwareCIJobDocument,
+					})
 				} else {
 					progress(
 						chalk.yellow(job.status),
