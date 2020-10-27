@@ -15,7 +15,7 @@ export const wait = async ({
 	timeout?: number
 	interval?: number
 	jobId: string
-}): Promise<void> =>
+}): Promise<Iot.Job> =>
 	new Promise((resolve, reject) => {
 		const t = setTimeout(
 			() =>
@@ -33,12 +33,12 @@ export const wait = async ({
 				if (job === undefined) {
 					clearTimeout(t)
 					if (i !== undefined) clearInterval(i)
-					return reject(`Job ${jobId} not found.`)
+					return reject(new Error(`Job ${jobId} not found.`))
 				}
 				if (job.status === 'COMPLETED') {
-					progress(job.status)
 					clearTimeout(t)
 					if (i !== undefined) clearInterval(i)
+					progress(job.status)
 					if ((job.jobProcessDetails?.numberOfFailedThings ?? 0) > 0) {
 						warn(
 							`${job.jobProcessDetails?.numberOfFailedThings} failed executions.`,
@@ -48,7 +48,7 @@ export const wait = async ({
 					success(
 						`${job.jobProcessDetails?.numberOfFailedThings} failed executions.`,
 					)
-					return resolve()
+					return resolve(job)
 				} else {
 					progress(
 						chalk.yellow(job.status),
