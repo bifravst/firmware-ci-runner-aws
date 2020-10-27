@@ -34,11 +34,7 @@ export const wait = async ({
 						jobId,
 					})
 					.promise()
-				if (job === undefined) {
-					clearTimeout(t)
-					if (i !== undefined) clearInterval(i)
-					return reject(new Error(`Job ${jobId} not found.`))
-				}
+				if (job === undefined) throw new Error(`Job ${jobId} not found.`)
 				if (job.status === 'COMPLETED') {
 					clearTimeout(t)
 					if (i !== undefined) clearInterval(i)
@@ -75,6 +71,9 @@ export const wait = async ({
 				}
 			} catch (err) {
 				warn(chalk.red(err.message))
+				clearTimeout(t)
+				if (i !== undefined) clearInterval(i)
+				return reject(new Error(`Job ${jobId} not found.`))
 			}
 		}
 		void checkJob()
