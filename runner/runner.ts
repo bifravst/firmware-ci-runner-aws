@@ -97,6 +97,9 @@ export const runner = async ({
 							report.flashLog = flashLog
 							report.deviceLog = deviceLog
 							report.connections = connections
+							// Publish report
+							progress(`Publishing report to`, doc.reportUrl)
+							await uploadToS3(doc.reportPublishUrl, report)
 						} catch (err) {
 							warn(job.id, 'failed', err.message)
 							report.error = err.message
@@ -104,9 +107,6 @@ export const runner = async ({
 								progress: err.message,
 							})
 						}
-						// Publish report
-						progress(`Publishing report to`, doc.reportUrl)
-						await uploadToS3(doc.reportPublishUrl, report)
 						// Remove hexfile
 						await fs.unlink(hexFile)
 						success(job.id, 'HEX file deleted')
