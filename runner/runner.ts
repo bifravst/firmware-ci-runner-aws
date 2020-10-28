@@ -85,13 +85,16 @@ export const runner = async ({
 						})
 						const report: Record<string, any> = {}
 						let connections
+						let conclusion
 						try {
 							const run = await runJob({ doc, hexFile, atClientHexFile })
 							const { result, deviceLog, flashLog } = run
 							connections = run.connections
-							job.succeeded({
-								progress: 'success',
-							})
+							conclusion = () => {
+								job.succeeded({
+									progress: 'success',
+								})
+							}
 							success(job.id, 'success')
 							report.result = result
 							report.flashLog = flashLog
@@ -103,9 +106,11 @@ export const runner = async ({
 						} catch (err) {
 							warn(job.id, 'failed', err.message)
 							report.error = err.message
-							job.failed({
-								progress: err.message,
-							})
+							conclusion = () => {
+								job.failed({
+									progress: err.message,
+								})
+							}
 						}
 						// Remove hexfile
 						await fs.unlink(hexFile)
@@ -118,6 +123,7 @@ export const runner = async ({
 						}
 						if (connections !== undefined)
 							Object.values(connections).map(({ end }) => end())
+						conclusion?.()
 					} else {
 						warn(clientId, err)
 					}
