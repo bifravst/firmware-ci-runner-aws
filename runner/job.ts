@@ -6,6 +6,7 @@ export type FirmwareCIJobDocument = {
 	reportUrl: string
 	fw: string
 	target: string
+	expires: string
 	credentials?: {
 		secTag: number
 		privateKey: string

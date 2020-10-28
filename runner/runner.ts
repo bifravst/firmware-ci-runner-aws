@@ -64,8 +64,16 @@ export const runner = async ({
 						)
 						const doc: RunningFirmwareCIJobDocument = {
 							id: job.id.toString(),
-							...(job.document as FirmwareCIJobDocument),
 							timeoutInMinutes: defaultTimeoutInMinutes,
+							...(job.document as FirmwareCIJobDocument),
+						}
+						if (
+							new Date(doc.expires).getTime() <
+							Date.now() + doc.timeoutInMinutes * 60 * 1000
+						) {
+							job.failed({
+								progress: `aborted due to job expiry`,
+							})
 						}
 						progress(clientId, 'job document', doc)
 						job.inProgress({

@@ -53,6 +53,7 @@ export const schedule = async ({
 		reportUrl: `https://${bucketName}.s3.${region}.amazonaws.com/${jobId}.json`,
 		fw: firmwareUrl,
 		target: `${target}:${network}`,
+		expires: new Date(Date.now() + 60 * 60 * 1000).toISOString(),
 		credentials: {
 			secTag,
 			privateKey,
