@@ -1,7 +1,7 @@
 import * as chalk from 'chalk'
 import { jobs, job } from 'aws-iot-device-sdk'
 import { progress, success, warn } from './log'
-import { promises as fs, realpathSync } from 'fs'
+import { promises as fs } from 'fs'
 import { download } from './download'
 import { runJob } from './runJob'
 import { flash } from './flash'
@@ -11,14 +11,15 @@ import {
 	RunningFirmwareCIJobDocument,
 } from './job'
 import { uploadToS3 } from './publishReport'
-import * as path from 'path'
 
 const isUndefined = (a?: any): boolean => a === null || a === undefined
 
 export const runner = async ({
 	certificateJSON,
+	atClientHexFile,
 }: {
 	certificateJSON: string
+	atClientHexFile: string
 }): Promise<void> => {
 	const {
 		clientId,
@@ -32,13 +33,6 @@ export const runner = async ({
 		chalk.yellow(brokerHostname),
 	)
 	console.log(chalk.grey('  Device ID:           '), chalk.yellow(clientId))
-	const atClientHexFile = path.join(
-		path.dirname(realpathSync(__filename)),
-		'..',
-		'..',
-		'at_client',
-		'thingy91_at_client_increased_buf.hex',
-	)
 	console.log(
 		chalk.grey('  AT Client:           '),
 		chalk.yellow(atClientHexFile),

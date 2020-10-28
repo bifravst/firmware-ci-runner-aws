@@ -4,12 +4,19 @@ import { scheduleJobCommand } from './commands/scheduleJob'
 import { waitForJobCommand } from './commands/waitForJob'
 import * as path from 'path'
 import { STS } from 'aws-sdk'
-import { promises as fs } from 'fs'
+import { promises as fs, realpathSync } from 'fs'
 import { runCommand } from './commands/run'
 
 const bucketName = process.env.BUCKET_NAME ?? ''
 const region = process.env.REGION ?? 'us-east-1'
 const ciDeviceName = process.env.CI_DEVICE ?? ''
+const atClientHexFile = path.join(
+	path.dirname(realpathSync(__filename)),
+	'..',
+	'..',
+	'at_client',
+	'thingy91_at_client_increased_buf.hex',
+)
 
 const CLI = async ({ isCI }: { isCI: boolean }) => {
 	const { version } = JSON.parse(
@@ -42,7 +49,11 @@ const CLI = async ({ isCI }: { isCI: boolean }) => {
 	if (isCI) {
 		console.error('Running on CI...')
 	} else {
-		commands.push(runCommand())
+		commands.push(
+			runCommand({
+				atClientHexFile,
+			}),
+		)
 	}
 
 	let ran = false
