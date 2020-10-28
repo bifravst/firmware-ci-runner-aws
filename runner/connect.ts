@@ -25,6 +25,10 @@ export const connect = (
 	})
 
 	const end = () => {
+		if (!port.isOpen) {
+			success(device, 'port is not open')
+			return
+		}
 		progress(device, 'closing port')
 		port.close()
 		success(device, 'port closed')

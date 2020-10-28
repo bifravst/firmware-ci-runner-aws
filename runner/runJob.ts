@@ -4,10 +4,15 @@ import { RunningFirmwareCIJobDocument } from './job'
 import { progress, warn } from './log'
 import { Connection } from './connect'
 
-export const runJob = async (
-	job: RunningFirmwareCIJobDocument,
-	hexFile: string,
-): Promise<{
+export const runJob = async ({
+	doc,
+	hexFile,
+	atClientHexFile,
+}: {
+	doc: RunningFirmwareCIJobDocument
+	hexFile: string
+	atClientHexFile: string
+}): Promise<{
 	result: { timeout: boolean }
 	connections: Record<string, Connection>
 	deviceLog: string[]
@@ -17,10 +22,10 @@ export const runJob = async (
 		let flashLog: string[] = []
 		connectToDevices({
 			onIMEI: async (connection) => {
-				const { credentials } = job
+				const { credentials } = doc
 				if (credentials !== undefined) {
 					const { secTag, privateKey, clientCert, caCert } = credentials
-					progress(job.id, 'Flashing credentials')
+					progress(doc.id, 'Flashing credentials')
 					// Turn off modem
 					await connection.at('AT+CFUN=4')
 					// 0 – Root CA certificate (ASCII text)
@@ -42,16 +47,16 @@ export const runJob = async (
 			},
 		})
 			.then(async ([connections, deviceLog]) => {
-				await flash('AT Host', 'thingy91_at_client_increased_buf.hex')
+				await flash('AT Host', atClientHexFile)
 				setTimeout(async () => {
-					warn(job.id, 'Timeout reached.')
+					warn(doc.id, 'Timeout reached.')
 					resolve({
 						result: { timeout: true },
 						connections,
 						deviceLog,
 						flashLog,
 					})
-				}, job.timeoutInMinutes * 60 * 1000)
+				}, doc.timeoutInMinutes * 60 * 1000)
 			})
 			.catch(reject)
 	})

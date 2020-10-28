@@ -1,7 +1,7 @@
 import * as chalk from 'chalk'
 import { jobs, job } from 'aws-iot-device-sdk'
 import { progress, success, warn } from './log'
-import { promises as fs } from 'fs'
+import { promises as fs, realpathSync } from 'fs'
 import { download } from './download'
 import { runJob } from './runJob'
 import { flash } from './flash'
@@ -11,6 +11,7 @@ import {
 	RunningFirmwareCIJobDocument,
 } from './job'
 import { uploadToS3 } from './publishReport'
+import * as path from 'path'
 
 const isUndefined = (a?: any): boolean => a === null || a === undefined
 
@@ -31,6 +32,15 @@ export const runner = async ({
 		chalk.yellow(brokerHostname),
 	)
 	console.log(chalk.grey('  Device ID:           '), chalk.yellow(clientId))
+	const atClientHexFile = path.join(
+		path.dirname(realpathSync(__filename)),
+		'at_client',
+		'thingy91_at_client_increased_buf.hex',
+	)
+	console.log(
+		chalk.grey('  AT Client:           '),
+		chalk.yellow(atClientHexFile),
+	)
 	console.log()
 
 	await new Promise((resolve, reject) => {
@@ -72,7 +82,7 @@ export const runner = async ({
 						const report: Record<string, any> = {}
 						let connections
 						try {
-							const run = await runJob(doc, hexFile)
+							const run = await runJob({ doc, hexFile, atClientHexFile })
 							const { result, deviceLog, flashLog } = run
 							connections = run.connections
 							job.succeeded({
@@ -98,7 +108,7 @@ export const runner = async ({
 						success(job.id, 'HEX file deleted')
 						// Reset FW
 						try {
-							await flash('AT Host', 'thingy91_at_client_increased_buf.hex')
+							await flash('AT Host', atClientHexFile)
 						} catch (err) {
 							warn(`Failed to reset programmer: ${err.message}`)
 						}
