@@ -34,6 +34,8 @@ export const runner = async ({
 	console.log(chalk.grey('  Device ID:           '), chalk.yellow(clientId))
 	const atClientHexFile = path.join(
 		path.dirname(realpathSync(__filename)),
+		'..',
+		'..',
 		'at_client',
 		'thingy91_at_client_increased_buf.hex',
 	)
