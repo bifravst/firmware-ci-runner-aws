@@ -11,6 +11,7 @@ import {
 	RunningFirmwareCIJobDocument,
 } from './job'
 import { uploadToS3 } from './publishReport'
+import { detectDK } from './detectDK'
 
 const isUndefined = (a?: any): boolean => a === null || a === undefined
 
@@ -21,6 +22,15 @@ export const runner = async ({
 	certificateJSON: string
 	atClientHexFile: string
 }): Promise<void> => {
+	// Check if a working nRF9160 is connected (by acquiring the IMEI)
+	progress('Detecting DK...')
+	const dkDevice = await detectDK({
+		atClientHexFile,
+	})
+	success(
+		`Detected DK with IMEI ${dkDevice.IMEI} connected to ${dkDevice.device}`,
+	)
+
 	const {
 		clientId,
 		brokerHostname,
@@ -84,12 +94,16 @@ export const runner = async ({
 							progress: 'running',
 						})
 						const report: Record<string, any> = {}
-						let connections
+						let connection
 						let conclusion
 						try {
-							const run = await runJob({ doc, hexFile, atClientHexFile })
+							const run = await runJob({
+								doc,
+								hexFile,
+								dkDevice: dkDevice.device,
+							})
 							const { result, deviceLog, flashLog } = run
-							connections = run.connections
+							connection = run.connection
 							conclusion = () => {
 								job.succeeded({
 									progress: 'success',
@@ -99,7 +113,7 @@ export const runner = async ({
 							report.result = result
 							report.flashLog = flashLog
 							report.deviceLog = deviceLog
-							report.connections = connections
+							report.connection = connection
 							// Publish report
 							progress(`Publishing report to`, doc.reportUrl)
 							await uploadToS3(doc.reportPublishUrl, report)
@@ -121,8 +135,7 @@ export const runner = async ({
 						} catch (err) {
 							warn(`Failed to reset programmer: ${err.message}`)
 						}
-						if (connections !== undefined)
-							Object.values(connections).map(({ end }) => end())
+						if (connection !== undefined) connection.end()
 						conclusion?.()
 					} else {
 						warn(clientId, err)

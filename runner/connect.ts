@@ -11,11 +11,10 @@ export type Connection = {
 }
 
 export const connect = (
-	connections: Record<string, Connection>,
-	deviceLog: string[],
-	onIMEI: (connection: Connection) => void,
+	device: string,
 	delimiter = '\r\n',
-) => (device: string): void => {
+): { connection: Connection; deviceLog: string[] } => {
+	const deviceLog: string[] = []
 	progress(`Connecting to`, device)
 	const port = new SerialPort(device, { baudRate: 115200, lock: false })
 	const parser = port.pipe(new Readline({ delimiter }))
@@ -23,7 +22,6 @@ export const connect = (
 		deviceLog.push(`${new Date().toISOString()}\t${device}\t${args.join('\t')}`)
 		progress(device, ...args)
 	})
-
 	const end = () => {
 		if (!port.isOpen) {
 			success(device, 'port is not open')
@@ -38,25 +36,8 @@ export const connect = (
 		success(device, `connected`)
 	})
 	parser.on('data', async (data: string) => {
-		if ((connections[device]?.isDK ?? false) !== true) {
-			debug(device, data)
-			deviceLog.push(
-				`${new Date().toISOString()}\t${device}\t${data.trimEnd()}`,
-			)
-		}
-		if (data.includes('DK Uptime is')) {
-			if (connections[device]?.isDK === undefined)
-				warn(device, 'is a DK: supressing future output')
-			connections[device].isDK = true
-		}
-		if (data.includes('The AT host sample started')) {
-			progress(device, 'AT host is running')
-			if (connections[device].IMEI === undefined) {
-				connections[device].IMEI = parseInt((await at('AT+CGSN')).join(''), 10)
-				progress(device, 'IMEI:', connections[device].IMEI)
-				onIMEI(connections[device])
-			}
-		}
+		debug(device, data)
+		deviceLog.push(`${new Date().toISOString()}\t${device}\t${data.trimEnd()}`)
 	})
 	port.on('close', () => {
 		warn(device, 'port closed')
@@ -65,8 +46,11 @@ export const connect = (
 		warn(device, err.message)
 		end()
 	})
-	connections[device] = {
-		at,
-		end,
+	return {
+		connection: {
+			at,
+			end,
+		},
+		deviceLog,
 	}
 }
