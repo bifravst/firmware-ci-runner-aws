@@ -6,19 +6,24 @@ import { connect, Connection } from './connect'
 export const runJob = async ({
 	doc,
 	hexFile,
-	dkDevice,
+	atHostHexFile,
+	device,
 }: {
 	doc: RunningFirmwareCIJobDocument
 	hexFile: string
-	dkDevice: string
+	atHostHexFile: string
+	device: string
 }): Promise<{
 	result: { timeout: boolean }
 	connection: Connection
 	deviceLog: string[]
 	flashLog: string[]
 }> => {
-	progress(doc.id, `Connecting to ${dkDevice}`)
-	const { connection, deviceLog } = connect(dkDevice)
+	progress(doc.id, `Connecting to ${device}`)
+	const { connection, deviceLog } = await connect({
+		device: device,
+		atHostHexFile,
+	})
 	let flashLog: string[] = []
 	const { credentials } = doc
 	if (credentials !== undefined) {
@@ -44,6 +49,7 @@ export const runJob = async ({
 	return new Promise((resolve) => {
 		setTimeout(async () => {
 			warn(doc.id, 'Timeout reached.')
+			await connection.end()
 			resolve({
 				result: { timeout: true },
 				connection,

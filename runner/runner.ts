@@ -4,33 +4,24 @@ import { progress, success, warn } from './log'
 import { promises as fs } from 'fs'
 import { download } from './download'
 import { runJob } from './runJob'
-import { flash } from './flash'
 import {
 	defaultTimeoutInMinutes,
 	FirmwareCIJobDocument,
 	RunningFirmwareCIJobDocument,
 } from './job'
 import { uploadToS3 } from './publishReport'
-import { detectDK } from './detectDK'
 
 const isUndefined = (a?: any): boolean => a === null || a === undefined
 
 export const runner = async ({
 	certificateJSON,
-	atClientHexFile,
+	atHostHexFile,
+	device,
 }: {
 	certificateJSON: string
-	atClientHexFile: string
+	atHostHexFile: string
+	device: string
 }): Promise<void> => {
-	// Check if a working nRF9160 is connected (by acquiring the IMEI)
-	progress('Detecting DK...')
-	const dkDevice = await detectDK({
-		atClientHexFile,
-	})
-	success(
-		`Detected DK with IMEI ${dkDevice.IMEI} connected to ${dkDevice.device}`,
-	)
-
 	const {
 		clientId,
 		brokerHostname,
@@ -45,7 +36,7 @@ export const runner = async ({
 	console.log(chalk.grey('  Device ID:           '), chalk.yellow(clientId))
 	console.log(
 		chalk.grey('  AT Client:           '),
-		chalk.yellow(atClientHexFile),
+		chalk.yellow(atHostHexFile),
 	)
 	console.log()
 
@@ -89,7 +80,7 @@ export const runner = async ({
 						job.inProgress({
 							progress: `downloading ${doc.fw}`,
 						})
-						const hexFile = await download(job.id.toString(), doc.fw)
+						const hexFile = await download(doc.id.toString(), doc.fw)
 						job.inProgress({
 							progress: 'running',
 						})
@@ -100,7 +91,8 @@ export const runner = async ({
 							const run = await runJob({
 								doc,
 								hexFile,
-								dkDevice: dkDevice.device,
+								device,
+								atHostHexFile,
 							})
 							const { result, deviceLog, flashLog } = run
 							connection = run.connection
@@ -129,13 +121,6 @@ export const runner = async ({
 						// Remove hexfile
 						await fs.unlink(hexFile)
 						success(job.id, 'HEX file deleted')
-						// Reset FW
-						try {
-							await flash('AT Host', atClientHexFile)
-						} catch (err) {
-							warn(`Failed to reset programmer: ${err.message}`)
-						}
-						if (connection !== undefined) connection.end()
 						conclusion?.()
 					} else {
 						warn(clientId, err)
