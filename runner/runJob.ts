@@ -17,6 +17,7 @@ export const runJob = async ({
 	deviceLog: string[]
 	flashLog: string[]
 }> => {
+	progress(doc.id, `Connecting to ${dkDevice}`)
 	const { connection, deviceLog } = connect(dkDevice)
 	let flashLog: string[] = []
 	const { credentials } = doc
