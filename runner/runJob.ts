@@ -32,14 +32,16 @@ export const runJob = async ({
 		// Turn off modem
 		await connection.at('AT+CFUN=4')
 		// 0 – Root CA certificate (ASCII text)
-		await connection.at(`AT%CMNG=0,${secTag},0,"${caCert.replace(/\n/g, '')}"`)
+		await connection.at(
+			`AT%CMNG=0,${secTag},0,"${caCert.replace(/\n/g, '\r\n')}"`,
+		)
 		// 1 – Client certificate (ASCII text)
 		await connection.at(
-			`AT%CMNG=0,${secTag},1,"${clientCert.replace(/\n/g, '')}"`,
+			`AT%CMNG=0,${secTag},1,"${clientCert.replace(/\n/g, '\r\n')}"`,
 		)
 		// 2 – Client private key (ASCII text)
 		await connection.at(
-			`AT%CMNG=0,${secTag},2,"${privateKey.replace(/\n/g, '')}"`,
+			`AT%CMNG=0,${secTag},2,"${privateKey.replace(/\n/g, '\r\n')}"`,
 		)
 		// Turn on modem
 		await connection.at('AT+CFUN=1')
