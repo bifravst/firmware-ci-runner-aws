@@ -3,17 +3,17 @@ import { Iot } from 'aws-sdk'
 import { progress, success, warn } from '../runner/log'
 import { FirmwareCIJobDocument } from '../runner/job'
 
-export const defaultTimeout = 300
-export const defaultInterval = 30
+export const defaultTimeoutSeconds = 300
+export const defaultIntervalSeconds = 30
 
 export const wait = async ({
 	iot,
-	timeout,
+	timeoutSeconds,
 	interval,
 	jobId,
 }: {
 	iot: Iot
-	timeout?: number
+	timeoutSeconds?: number
 	interval?: number
 	jobId: string
 }): Promise<{
@@ -24,7 +24,7 @@ export const wait = async ({
 		const t = setTimeout(
 			() =>
 				reject(new Error(`Timed out waiting for job ${jobId} to complete.`)),
-			(timeout ?? defaultTimeout) * 1000,
+			(timeoutSeconds ?? defaultTimeoutSeconds) * 1000,
 		)
 		let i: NodeJS.Timeout | undefined = undefined
 		const checkJob = async () => {
@@ -77,5 +77,5 @@ export const wait = async ({
 			}
 		}
 		void checkJob()
-		i = setInterval(checkJob, (interval ?? defaultInterval) * 1000)
+		i = setInterval(checkJob, (interval ?? defaultIntervalSeconds) * 1000)
 	})
