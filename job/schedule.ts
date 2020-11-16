@@ -21,6 +21,7 @@ export const schedule = async ({
 	ciDeviceArn,
 	jobId,
 	iot,
+	timeoutInMinutes,
 }: {
 	s3: S3
 	iot: Iot
@@ -33,6 +34,7 @@ export const schedule = async ({
 	region: string
 	ciDeviceArn: string
 	jobId?: string
+	timeoutInMinutes?: number
 }): Promise<FirmwareCIJobDocument> => {
 	jobId = jobId ?? v4()
 	console.log('')
@@ -60,6 +62,7 @@ export const schedule = async ({
 			clientCert,
 			caCert,
 		},
+		timeoutInMinutes,
 	}
 
 	await iot
