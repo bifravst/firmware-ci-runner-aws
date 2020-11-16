@@ -29,7 +29,7 @@
   "dependencies": {
     "@serialport/parser-readline": "9.0.1",
     "aws-iot-device-sdk": "2.2.6",
-    "aws-sdk": "2.792.0",
+    "aws-sdk": "2.793.0",
     "check-node-version": "4.0.3",
     "commander": "6.2.0",
     "form-data": "3.0.0",
