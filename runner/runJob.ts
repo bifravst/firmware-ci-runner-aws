@@ -48,6 +48,7 @@ export const runJob = async ({
 	}
 	flashLog = await flash('Firmware', hexFile)
 	// FIXME: implement terminal state critera
+	progress(doc.id, `Setting timeout to ${doc.timeoutInMinutes} minutes`)
 	return new Promise((resolve) => {
 		setTimeout(async () => {
 			warn(doc.id, 'Timeout reached.')
