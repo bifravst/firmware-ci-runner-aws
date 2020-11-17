@@ -17,7 +17,11 @@ export const connect = async ({
 	device: string
 	atHostHexFile: string
 	delimiter?: string
-}): Promise<{ connection: Connection; deviceLog: string[] }> =>
+}): Promise<{
+	connection: Connection
+	deviceLog: string[]
+	onData: (fn: (s: string) => void) => void
+}> =>
 	new Promise((resolve) => {
 		const deviceLog: string[] = []
 		progress(`Connecting to`, device)
@@ -44,11 +48,13 @@ export const connect = async ({
 			success(device, `connected`)
 			void flash('AT Host', atHostHexFile)
 		})
+		const listeners: ((s: string) => void)[] = []
 		parser.on('data', async (data: string) => {
 			debug(device, data)
 			deviceLog.push(
 				`${new Date().toISOString()}\t${device}\t${data.trimEnd()}`,
 			)
+			listeners.map((l) => l(data))
 			if (data.includes('The AT host sample started')) {
 				resolve({
 					connection: {
@@ -56,6 +62,9 @@ export const connect = async ({
 						end,
 					},
 					deviceLog,
+					onData: (fn) => {
+						listeners.push(fn)
+					},
 				})
 			}
 		})

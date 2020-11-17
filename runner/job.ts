@@ -13,6 +13,7 @@ export type FirmwareCIJobDocument = {
 		clientCert: string
 		caCert: string
 	}
+	abortOn?: string[]
 }
 
 export type RunningFirmwareCIJobDocument = {

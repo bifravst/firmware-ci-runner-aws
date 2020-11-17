@@ -14,13 +14,13 @@ export const runJob = async ({
 	atHostHexFile: string
 	device: string
 }): Promise<{
-	result: { timeout: boolean }
+	result: { timeout: boolean; abort: boolean }
 	connection: Connection
 	deviceLog: string[]
 	flashLog: string[]
 }> => {
 	progress(doc.id, `Connecting to ${device}`)
-	const { connection, deviceLog } = await connect({
+	const { connection, deviceLog, onData } = await connect({
 		device: device,
 		atHostHexFile,
 	})
@@ -50,15 +50,35 @@ export const runJob = async ({
 	// FIXME: implement terminal state critera
 	progress(doc.id, `Setting timeout to ${doc.timeoutInMinutes} minutes`)
 	return new Promise((resolve) => {
-		setTimeout(async () => {
+		const t = setTimeout(async () => {
 			warn(doc.id, 'Timeout reached.')
 			await connection.end()
 			resolve({
-				result: { timeout: true },
+				result: { timeout: true, abort: false },
 				connection,
 				deviceLog,
 				flashLog,
 			})
 		}, doc.timeoutInMinutes * 60 * 1000)
+		if (doc.abortOn !== undefined) {
+			onData((data) => {
+				doc.abortOn?.forEach(async (s) => {
+					if (data.includes(s)) {
+						warn(doc.id, 'Abortion criteria seen:', data)
+						clearTimeout(t)
+						await connection.end()
+						resolve({
+							result: {
+								abort: true,
+								timeout: false,
+							},
+							connection,
+							deviceLog,
+							flashLog,
+						})
+					}
+				})
+			})
+		}
 	})
 }
