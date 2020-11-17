@@ -61,6 +61,11 @@ export const runJob = async ({
 			})
 		}, doc.timeoutInMinutes * 60 * 1000)
 		if (doc.abortOn !== undefined) {
+			progress(
+				doc.id,
+				'Setting up abortion criteria traps. Job will abort if output contains:',
+			)
+			doc.abortOn?.map((s) => progress(doc, 'abortOn:', s))
 			onData((data) => {
 				doc.abortOn?.forEach(async (s) => {
 					if (data.includes(s)) {
