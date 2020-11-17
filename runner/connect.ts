@@ -28,9 +28,7 @@ export const connect = async ({
 		const port = new SerialPort(device, { baudRate: 115200, lock: false })
 		const parser = port.pipe(new Readline({ delimiter: delimiter ?? '\r\n' }))
 		const at = atCMD(device, port, parser, delimiter ?? '\r\n', (...args) => {
-			deviceLog.push(
-				`${new Date().toISOString()}\t${device}\t${args.join('\t')}`,
-			)
+			deviceLog.push(`${new Date().toISOString()}\t${args.join('\t')}`)
 			progress(device, ...args)
 		})
 		const end = async () => {
@@ -51,9 +49,7 @@ export const connect = async ({
 		const listeners: ((s: string) => void)[] = []
 		parser.on('data', async (data: string) => {
 			debug(device, data)
-			deviceLog.push(
-				`${new Date().toISOString()}\t${device}\t${data.trimEnd()}`,
-			)
+			deviceLog.push(`${new Date().toISOString()}\t${data.trimEnd()}`)
 			listeners.map((l) => l(data))
 			if (data.includes('The AT host sample started')) {
 				resolve({
