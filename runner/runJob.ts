@@ -70,7 +70,7 @@ export const runJob = async ({
 			onData((data) => {
 				doc.abortOn?.forEach(async (s) => {
 					if (data.includes(s)) {
-						warn(doc.id, 'Abortion criteria seen:', data)
+						warn(doc.id, '<abortOn>', 'Abortion criteria seen:', data)
 						clearTimeout(t)
 						await connection.end()
 						resolve({
