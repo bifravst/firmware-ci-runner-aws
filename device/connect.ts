@@ -2,7 +2,6 @@ import * as SerialPort from 'serialport'
 import * as Readline from '@serialport/parser-readline'
 import { atCMD } from './atCMD'
 import { flash } from './flash'
-import { log } from '../runner/log'
 
 export type Connection = {
 	end: () => Promise<void>
@@ -68,7 +67,8 @@ export const connect = async ({
 			success?.(device, `connected`)
 			void flash({
 				hexfile: atHostHexfile,
-				...log('AT Host'),
+				progress: (...args: any[]) => progress?.('AT Host', ...args),
+				warn: (...args: any[]) => warn?.('AT Host', ...args),
 			})
 		})
 		const listeners: ((s: string) => void)[] = []

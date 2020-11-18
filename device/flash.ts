@@ -22,12 +22,10 @@ exit`
 export const flash = async ({
 	hexfile,
 	progress,
-	success,
 	warn,
 }: {
 	hexfile: string
 	progress?: (...args: string[]) => void
-	success?: (...args: string[]) => void
 	warn?: (...args: string[]) => void
 }): Promise<string[]> => {
 	const script = path.join(os.tmpdir(), `${v4()}.script`)
@@ -76,11 +74,10 @@ export const flash = async ({
 		flash.on('exit', () => {
 			clearTimeout(t)
 			if (log.join('\n').includes('Failed to open file.')) {
-				warn?.('Failed to open file.')
+				warn?.(`Failed to open file: ${hexfile}`)
 				return reject()
 			}
 			if (log.join('\n').includes('Script processing completed.')) {
-				success?.(hexfile)
 				resolve(log)
 			} else if (!timedOut) {
 				reject(new Error('Flashing did not succeed for unknown reasons.'))
