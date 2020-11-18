@@ -2,8 +2,8 @@ import { CommandDefinition } from './CommandDefinition'
 import * as chalk from 'chalk'
 import { Iot } from 'aws-sdk'
 import {
-	defaultIntervalSeconds,
-	defaultTimeoutSeconds,
+	waitDefaultIntervalInSeconds,
+	waitDefaultTimeoutInMinutes,
 	wait,
 } from '../../job/wait'
 
@@ -16,11 +16,11 @@ export const waitForJobCommand = ({
 	options: [
 		{
 			flags: '-t, --timout <timeout>',
-			description: `Timeout in seconds, default: ${defaultTimeoutSeconds}`,
+			description: `Timeout in minutes, default: ${waitDefaultTimeoutInMinutes}`,
 		},
 		{
 			flags: '-i, --interval <interval>',
-			description: `Interval in seconds, default: ${defaultIntervalSeconds}`,
+			description: `Interval in seconds, default: ${waitDefaultIntervalInSeconds}`,
 		},
 	],
 	action: async (jobId, { timeout, interval }) => {
@@ -33,7 +33,7 @@ export const waitForJobCommand = ({
 		await wait({
 			iot,
 			interval,
-			timeoutSeconds: timeout,
+			timeoutInMinutes: timeout,
 			jobId,
 		})
 	},
