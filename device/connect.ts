@@ -23,6 +23,7 @@ export const connect = async ({
 	success,
 	debug,
 	warn,
+	onEnd,
 }: {
 	device: string
 	atHostHexfile: string
@@ -31,6 +32,7 @@ export const connect = async ({
 	success?: (...args: string[]) => void
 	debug?: (...args: string[]) => void
 	warn?: (...args: string[]) => void
+	onEnd?: (port: SerialPort) => Promise<void>
 }): Promise<{
 	connection: Connection
 	deviceLog: string[]
@@ -52,10 +54,7 @@ export const connect = async ({
 			},
 		})
 		const end = async () => {
-			await flash({
-				hexfile: atHostHexfile,
-				...log('AT Host'),
-			})
+			await onEnd?.(port)
 			if (!port.isOpen) {
 				success?.(device, 'port is not open')
 				return

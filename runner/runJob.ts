@@ -24,6 +24,12 @@ export const runJob = async ({
 	const { connection, deviceLog, onData } = await connect({
 		device: device,
 		atHostHexfile,
+		onEnd: async () => {
+			await flash({
+				hexfile: atHostHexfile,
+				...log('Resetting device with AT Host'),
+			})
+		},
 	})
 	let flashLog: string[] = []
 	const { credentials } = doc
