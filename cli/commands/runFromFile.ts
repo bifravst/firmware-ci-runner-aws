@@ -1,5 +1,5 @@
 import { CommandDefinition } from './CommandDefinition'
-import { atHostHexfile } from '../../at_client/atHostHexfile'
+import { atHostHexfile } from '../../at_client'
 import { runJob } from '../../runner/runJob'
 import { promises as fs } from 'fs'
 import { download } from '../../runner/download'

@@ -1,6 +1,6 @@
 import { CommandDefinition } from './CommandDefinition'
 import { runner } from '../../runner/runner'
-import { atHostHexfile } from '../../at_client/atHostHexfile'
+import { atHostHexfile } from '../../at_client'
 
 export const runCommand = (): CommandDefinition => ({
 	command: 'run <device> <certificateJSON>',
