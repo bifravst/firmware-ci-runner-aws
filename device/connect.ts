@@ -88,7 +88,7 @@ export const connect = async ({
 			}
 		})
 		port.on('close', () => {
-			warn?.(device, 'port closed')
+			progress?.(device, 'port closed')
 		})
 		port.on('error', (err) => {
 			warn?.(device, err.message)
