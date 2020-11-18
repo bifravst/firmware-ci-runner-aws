@@ -19,7 +19,6 @@ export const connect = async ({
 	delimiter,
 	atHostHexfile,
 	progress,
-	success,
 	debug,
 	warn,
 	onEnd,
@@ -28,7 +27,6 @@ export const connect = async ({
 	atHostHexfile: string
 	delimiter?: string
 	progress?: (...args: string[]) => void
-	success?: (...args: string[]) => void
 	debug?: (...args: string[]) => void
 	warn?: (...args: string[]) => void
 	onEnd?: (port: SerialPort) => Promise<void>
@@ -55,19 +53,19 @@ export const connect = async ({
 		const end = async () => {
 			await onEnd?.(port)
 			if (!port.isOpen) {
-				success?.(device, 'port is not open')
+				warn?.(device, 'port is not open')
 				return
 			}
 			progress?.(device, 'closing port')
 			port.close()
-			success?.(device, 'port closed')
+			progress?.(device, 'port closed')
 		}
 
 		port.on('open', async () => {
-			success?.(device, `connected`)
+			progress?.(device, `connected`)
 			void flash({
 				hexfile: atHostHexfile,
-				progress: (...args: any[]) => progress?.('AT Host', ...args),
+				debug: (...args: any[]) => debug?.('AT Host', ...args),
 				warn: (...args: any[]) => warn?.('AT Host', ...args),
 			})
 		})

@@ -21,16 +21,16 @@ exit`
  */
 export const flash = async ({
 	hexfile,
-	progress,
 	warn,
+	debug,
 }: {
 	hexfile: string
-	progress?: (...args: string[]) => void
 	warn?: (...args: string[]) => void
+	debug?: (...args: string[]) => void
 }): Promise<string[]> => {
 	const script = path.join(os.tmpdir(), `${v4()}.script`)
 	await fs.writeFile(script, seggerFlashScript(hexfile), 'utf-8')
-	progress?.(seggerFlashScript(hexfile))
+	debug?.(seggerFlashScript(hexfile))
 	return new Promise((resolve, reject) => {
 		const flash = spawn('JLinkExe', [
 			'-device',
@@ -57,7 +57,7 @@ export const flash = async ({
 				.split('\n')
 				.filter((s: string) => s.length)
 				.map((s: string) => {
-					progress?.(s)
+					debug?.(s)
 					log.push(s)
 				})
 		})
