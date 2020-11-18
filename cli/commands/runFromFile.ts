@@ -1,5 +1,5 @@
 import { CommandDefinition } from './CommandDefinition'
-import { atHostHexFile } from '../../runner/atHostHexFile'
+import { atHostHexfile } from '../../at_client/atHostHexfile'
 import { runJob } from '../../runner/runJob'
 import { promises as fs } from 'fs'
 import { download } from '../../runner/download'
@@ -14,15 +14,15 @@ export const runFromFileCommand = (): CommandDefinition => ({
 	],
 	action: async (device, jobFile, { thingy }) => {
 		const doc = JSON.parse(await fs.readFile(jobFile, 'utf-8'))
-		const hexFile = await download(doc.id.toString(), doc.fw)
+		const hexfile = await download(doc.id.toString(), doc.fw)
 		await runJob({
 			doc,
-			hexFile,
+			hexfile,
 			device,
-			atHostHexFile:
-				thingy === true ? atHostHexFile.thingy91 : atHostHexFile['9160dk'],
+			atHostHexfile:
+				thingy === true ? atHostHexfile.thingy91 : atHostHexfile['9160dk'],
 		})
-		await fs.unlink(hexFile)
+		await fs.unlink(hexfile)
 	},
 	help: 'Execute one firmware CI job from a file',
 })

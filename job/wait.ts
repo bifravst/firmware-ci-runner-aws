@@ -1,7 +1,7 @@
 import * as chalk from 'chalk'
 import { Iot } from 'aws-sdk'
 import { progress, success, warn } from '../runner/log'
-import { FirmwareCIJobDocument } from '../runner/job'
+import { FirmwareCIJobDocument } from './job'
 
 export const defaultTimeoutSeconds = 300
 export const defaultIntervalSeconds = 30

@@ -1,17 +1,18 @@
-import { flash } from './flash'
-import { RunningFirmwareCIJobDocument } from './job'
-import { progress, warn } from './log'
-import { connect, Connection } from './connect'
+import { flash } from '../device/flash'
+import { RunningFirmwareCIJobDocument } from '../job/job'
+import { progress, warn, log } from './log'
+import { connect, Connection } from '../device/connect'
+import { flashCredentials } from '../device/flashCredentials'
 
 export const runJob = async ({
 	doc,
-	hexFile,
-	atHostHexFile,
+	hexfile,
+	atHostHexfile,
 	device,
 }: {
 	doc: RunningFirmwareCIJobDocument
-	hexFile: string
-	atHostHexFile: string
+	hexfile: string
+	atHostHexfile: string
 	device: string
 }): Promise<{
 	result: { timeout: boolean; abort: boolean }
@@ -22,31 +23,21 @@ export const runJob = async ({
 	progress(doc.id, `Connecting to ${device}`)
 	const { connection, deviceLog, onData } = await connect({
 		device: device,
-		atHostHexFile,
+		atHostHexfile,
 	})
 	let flashLog: string[] = []
 	const { credentials } = doc
 	if (credentials !== undefined) {
-		const { secTag, privateKey, clientCert, caCert } = credentials
 		progress(doc.id, 'Flashing credentials')
-		// Turn off modem
-		await connection.at('AT+CFUN=4')
-		// 0 – Root CA certificate (ASCII text)
-		await connection.at(
-			`AT%CMNG=0,${secTag},0,"${caCert.replace(/\n/g, '\r\n')}"`,
-		)
-		// 1 – Client certificate (ASCII text)
-		await connection.at(
-			`AT%CMNG=0,${secTag},1,"${clientCert.replace(/\n/g, '\r\n')}"`,
-		)
-		// 2 – Client private key (ASCII text)
-		await connection.at(
-			`AT%CMNG=0,${secTag},2,"${privateKey.replace(/\n/g, '\r\n')}"`,
-		)
-		// Turn on modem
-		await connection.at('AT+CFUN=1')
+		await flashCredentials({
+			...credentials,
+			...connection,
+		})
 	}
-	flashLog = await flash('Firmware', hexFile)
+	flashLog = await flash({
+		hexfile,
+		...log('Flash Firmware'),
+	})
 	// FIXME: implement terminal state critera
 	progress(doc.id, `Setting timeout to ${doc.timeoutInMinutes} minutes`)
 	return new Promise((resolve) => {

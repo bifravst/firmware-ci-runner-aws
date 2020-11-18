@@ -3,18 +3,24 @@ import * as SerialPort from 'serialport'
 // eslint-disable-next-line no-control-regex
 const trim = (data: string) => data.trim().replace(/\u0000/g, '')
 
-export const atCMD = (
-	device: string,
-	port: SerialPort,
+export const atCMD = ({
+	device,
+	port,
+	parser,
+	delimiter,
+	progress,
+}: {
+	device: string
+	port: SerialPort
 	// eslint-disable-next-line @typescript-eslint/explicit-module-boundary-types
-	parser: any,
-	delimiter: string,
-	log?: (...args: string[]) => void,
-) => async (cmd: string): Promise<string[]> =>
+	parser: any
+	delimiter: string
+	progress?: (...args: string[]) => void
+}) => async (cmd: string): Promise<string[]> =>
 	new Promise((resolve, reject) => {
 		const ATCmdResult: string[] = []
 		const dataHandler = (data: string) => {
-			log?.('<AT', data)
+			progress?.('<AT', data)
 			const d = trim(data)
 			if (d === 'OK') {
 				parser.off('data', dataHandler)
@@ -40,6 +46,6 @@ export const atCMD = (
 					),
 				)
 			}
-			log?.('AT>', cmd)
+			progress?.('AT>', cmd)
 		})
 	})

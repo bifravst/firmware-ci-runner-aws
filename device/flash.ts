@@ -1,6 +1,5 @@
 import { promises as fs } from 'fs'
 import { spawn } from 'child_process'
-import { progress, warn, success } from './log'
 import * as path from 'path'
 import * as os from 'os'
 import { v4 } from 'uuid'
@@ -17,13 +16,23 @@ rx 1000
 g
 exit`
 
-export const flash = async (
-	info: string,
-	hexfile: string,
-): Promise<string[]> => {
+/**
+ * Implements flashing firmware using Segger JLink
+ */
+export const flash = async ({
+	hexfile,
+	progress,
+	success,
+	warn,
+}: {
+	hexfile: string
+	progress?: (...args: string[]) => void
+	success?: (...args: string[]) => void
+	warn?: (...args: string[]) => void
+}): Promise<string[]> => {
 	const script = path.join(os.tmpdir(), `${v4()}.script`)
 	await fs.writeFile(script, seggerFlashScript(hexfile), 'utf-8')
-	progress(`Flash ${info}`, seggerFlashScript(hexfile))
+	progress?.(seggerFlashScript(hexfile))
 	return new Promise((resolve, reject) => {
 		const flash = spawn('JLinkExe', [
 			'-device',
@@ -50,7 +59,7 @@ export const flash = async (
 				.split('\n')
 				.filter((s: string) => s.length)
 				.map((s: string) => {
-					progress(`Flash ${info}`, s)
+					progress?.(s)
 					log.push(s)
 				})
 		})
@@ -61,17 +70,17 @@ export const flash = async (
 				.trim()
 				.split('\n')
 				.filter((s: string) => s.length)
-				.map((s: string) => warn(`Flash ${info}`, s))
+				.map((s: string) => warn?.(s))
 		})
 
 		flash.on('exit', () => {
 			clearTimeout(t)
 			if (log.join('\n').includes('Failed to open file.')) {
-				warn(`Flash ${info}`, 'Failed to open file.')
+				warn?.('Failed to open file.')
 				return reject()
 			}
 			if (log.join('\n').includes('Script processing completed.')) {
-				success(`Flash ${info}`, hexfile)
+				success?.(hexfile)
 				resolve(log)
 			} else if (!timedOut) {
 				reject(new Error('Flashing did not succeed for unknown reasons.'))

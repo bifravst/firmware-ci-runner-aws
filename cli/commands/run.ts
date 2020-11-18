@@ -1,6 +1,6 @@
 import { CommandDefinition } from './CommandDefinition'
 import { runner } from '../../runner/runner'
-import { atHostHexFile } from '../../runner/atHostHexFile'
+import { atHostHexfile } from '../../at_client/atHostHexfile'
 
 export const runCommand = (): CommandDefinition => ({
 	command: 'run <device> <certificateJSON>',
@@ -13,8 +13,8 @@ export const runCommand = (): CommandDefinition => ({
 	action: async (device, certificateJSON, { thingy }) => {
 		await runner({
 			certificateJSON,
-			atHostHexFile:
-				thingy === true ? atHostHexFile.thingy91 : atHostHexFile['9160dk'],
+			atHostHexfile:
+				thingy === true ? atHostHexfile.thingy91 : atHostHexfile['9160dk'],
 			device,
 		})
 	},

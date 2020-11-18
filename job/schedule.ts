@@ -2,7 +2,7 @@ import { v4 } from 'uuid'
 import * as chalk from 'chalk'
 import { S3, Iot } from 'aws-sdk'
 import { promises as fs } from 'fs'
-import { FirmwareCIJobDocument } from '../runner/job'
+import { FirmwareCIJobDocument } from './job'
 
 const queryString = (s: Record<string, any>): string =>
 	Object.entries(s)

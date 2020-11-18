@@ -8,18 +8,18 @@ import {
 	defaultTimeoutInMinutes,
 	FirmwareCIJobDocument,
 	RunningFirmwareCIJobDocument,
-} from './job'
+} from '../job/job'
 import { uploadToS3 } from './publishReport'
 
 const isUndefined = (a?: any): boolean => a === null || a === undefined
 
 export const runner = async ({
 	certificateJSON,
-	atHostHexFile,
+	atHostHexfile,
 	device,
 }: {
 	certificateJSON: string
-	atHostHexFile: string
+	atHostHexfile: string
 	device: string
 }): Promise<void> => {
 	const {
@@ -36,7 +36,7 @@ export const runner = async ({
 	console.log(chalk.grey('  Device ID:           '), chalk.yellow(clientId))
 	console.log(
 		chalk.grey('  AT Client:           '),
-		chalk.yellow(atHostHexFile),
+		chalk.yellow(atHostHexfile),
 	)
 	console.log()
 
@@ -80,7 +80,7 @@ export const runner = async ({
 						job.inProgress({
 							progress: `downloading ${doc.fw}`,
 						})
-						const hexFile = await download(doc.id.toString(), doc.fw)
+						const hexfile = await download(doc.id.toString(), doc.fw)
 						job.inProgress({
 							progress: 'running',
 						})
@@ -90,9 +90,9 @@ export const runner = async ({
 						try {
 							const run = await runJob({
 								doc,
-								hexFile,
+								hexfile,
 								device,
-								atHostHexFile,
+								atHostHexfile,
 							})
 							const { result, deviceLog, flashLog } = run
 							connection = run.connection
@@ -119,7 +119,7 @@ export const runner = async ({
 							}
 						}
 						// Remove hexfile
-						await fs.unlink(hexFile)
+						await fs.unlink(hexfile)
 						success(job.id, 'HEX file deleted')
 						conclusion?.()
 					} else {
