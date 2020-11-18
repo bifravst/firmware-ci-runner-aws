@@ -30,6 +30,7 @@ export const runJob = async ({
 				...log('Resetting device with AT Host'),
 			})
 		},
+		...log(device),
 	})
 	let flashLog: string[] = []
 	const { credentials } = doc
