@@ -14,16 +14,20 @@ export const success = (...args: any[]): void =>
 export const debug = (...args: any[]): void =>
 	console.debug(...args.map((arg) => chalk.magenta(stringify(arg))))
 
+const notEmpty = (s?: any) => s !== undefined
+
 export const log = (
-	prefix: string,
+	...prefixes: string[]
 ): {
 	warn: (...args: any[]) => void
 	progress: (...args: any[]) => void
 	success: (...args: any[]) => void
 	debug: (...args: any[]) => void
 } => ({
-	warn: (...args: any[]) => warn(prefix, ...args),
-	progress: (...args: any[]) => progress(prefix, ...args),
-	success: (...args: any[]) => success(prefix, ...args),
-	debug: (...args: any[]) => debug(prefix, ...args),
+	warn: (...args: any[]) => warn(...[...prefixes, ...args].filter(notEmpty)),
+	progress: (...args: any[]) =>
+		progress(...[...prefixes, ...args].filter(notEmpty)),
+	success: (...args: any[]) =>
+		success(...[...prefixes, ...args].filter(notEmpty)),
+	debug: (...args: any[]) => debug(...[...prefixes, ...args].filter(notEmpty)),
 })
