@@ -23,6 +23,7 @@ export const schedule = async ({
 	iot,
 	timeoutInMinutes,
 	abortOn,
+	endOn,
 }: {
 	s3: S3
 	iot: Iot
@@ -37,6 +38,7 @@ export const schedule = async ({
 	jobId?: string
 	timeoutInMinutes?: number
 	abortOn?: string[]
+	endOn?: string[]
 }): Promise<FirmwareCIJobDocument> => {
 	jobId = jobId ?? v4()
 	console.log('')
@@ -66,6 +68,7 @@ export const schedule = async ({
 		},
 		timeoutInMinutes,
 		abortOn,
+		endOn,
 	}
 
 	await iot

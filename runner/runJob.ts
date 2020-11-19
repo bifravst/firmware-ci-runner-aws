@@ -4,6 +4,8 @@ import { progress, warn, log } from './log'
 import { connect, Connection } from '../device/connect'
 import { flashCredentials } from '../device/flashCredentials'
 
+type Result = { timeout: boolean; abort: boolean }
+
 export const runJob = async ({
 	doc,
 	hexfile,
@@ -15,7 +17,7 @@ export const runJob = async ({
 	atHostHexfile: string
 	device: string
 }): Promise<{
-	result: { timeout: boolean; abort: boolean }
+	result: Result
 	connection: Connection
 	deviceLog: string[]
 	flashLog: string[]
@@ -45,7 +47,6 @@ export const runJob = async ({
 		hexfile,
 		...log('Flash Firmware'),
 	})
-	// FIXME: implement terminal state critera
 	progress(doc.id, `Setting timeout to ${doc.timeoutInMinutes} minutes`)
 	return new Promise((resolve) => {
 		const t = setTimeout(async () => {
@@ -58,24 +59,22 @@ export const runJob = async ({
 				flashLog,
 			})
 		}, doc.timeoutInMinutes * 60 * 1000)
-		if (doc.abortOn !== undefined) {
+
+		const terminateOn = (type: string, result: Result, s: string[]) => {
 			progress(
 				doc.id,
-				'<abortOn>',
-				'Setting up abortion criteria traps. Job will abort if output contains:',
+				`<${type}>`,
+				`Setting up ${type} traps. Job will terminate if output contains:`,
 			)
-			doc.abortOn?.map((s) => progress(doc.id, '<abortOn>', s))
+			s?.map((s) => progress(doc.id, `<${type}>`, s))
 			onData((data) => {
-				doc.abortOn?.forEach(async (s) => {
+				s?.forEach(async (s) => {
 					if (data.includes(s)) {
-						warn(doc.id, '<abortOn>', 'Abortion criteria seen:', data)
+						warn(doc.id, `<${type}>`, 'Termination criteria seen:', data)
 						clearTimeout(t)
 						await connection.end()
 						resolve({
-							result: {
-								abort: true,
-								timeout: false,
-							},
+							result,
 							connection,
 							deviceLog,
 							flashLog,
@@ -84,5 +83,25 @@ export const runJob = async ({
 				})
 			})
 		}
+
+		if (doc.abortOn !== undefined)
+			terminateOn(
+				'abortOn',
+				{
+					abort: true,
+					timeout: false,
+				},
+				doc.abortOn,
+			)
+
+		if (doc.endOn !== undefined)
+			terminateOn(
+				'endOn',
+				{
+					abort: false,
+					timeout: false,
+				},
+				doc.endOn,
+			)
 	})
 }

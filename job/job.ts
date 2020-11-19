@@ -14,6 +14,7 @@ export type FirmwareCIJobDocument = {
 		caCert: string
 	}
 	abortOn?: string[]
+	endOn?: string[]
 }
 
 export type RunningFirmwareCIJobDocument = {
