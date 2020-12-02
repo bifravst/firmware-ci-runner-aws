@@ -6,7 +6,6 @@
   "bin": "./cli/index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "postinstall": "check-node-version --package",
     "start": "node --unhandled-rejections=strict dist/runner/runner.js"
   },
   "repository": {
@@ -30,7 +29,6 @@
     "@serialport/parser-readline": "9.0.1",
     "aws-iot-device-sdk": "2.2.6",
     "aws-sdk": "2.802.0",
-    "check-node-version": "4.0.3",
     "commander": "6.2.0",
     "form-data": "3.0.0",
     "node-fetch": "2.6.1",
