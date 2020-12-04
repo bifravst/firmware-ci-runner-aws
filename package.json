@@ -32,7 +32,7 @@
     "commander": "6.2.0",
     "form-data": "3.0.0",
     "node-fetch": "2.6.1",
-    "serialport": "9.0.2",
+    "serialport": "9.0.3",
     "uuid": "8.3.1"
   },
   "devDependencies": {
