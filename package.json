@@ -26,6 +26,7 @@
   },
   "homepage": "https://github.com/bifravst/firmware-ci-aws#readme",
   "dependencies": {
+    "@bifravst/firmware-ci": "^5.0.0",
     "@serialport/parser-readline": "9.0.1",
     "aws-iot-device-sdk": "2.2.6",
     "aws-sdk": "2.810.0",

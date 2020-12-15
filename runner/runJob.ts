@@ -1,8 +1,11 @@
-import { flash } from '../device/flash'
+import {
+	flash,
+	connect,
+	Connection,
+	flashCredentials,
+} from '@bifravst/firmware-ci'
 import { RunningFirmwareCIJobDocument } from '../job/job'
 import { progress, warn, log } from './log'
-import { connect, Connection } from '../device/connect'
-import { flashCredentials } from '../device/flashCredentials'
 
 type Result = { timeout: boolean; abort: boolean }
 
