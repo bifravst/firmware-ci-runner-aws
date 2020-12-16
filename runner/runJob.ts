@@ -5,6 +5,7 @@ import {
 	flashCredentials,
 } from '@bifravst/firmware-ci'
 import { RunningFirmwareCIJobDocument } from '../job/job'
+import { allSeen } from './allSeen'
 import { progress, warn, log } from './log'
 
 type Result = { timeout: boolean; abort: boolean }
@@ -70,37 +71,24 @@ export const runJob = async ({
 				`Setting up ${type} traps. Job will terminate if output contains:`,
 			)
 			s?.map((s) => progress(doc.id, `<${type}>`, s))
-			const seen = s.reduce(
-				(seen, s) => ({ ...seen, [s]: false }),
-				{} as Record<string, boolean>,
-			)
-			onData((data) => {
+			const terminateCheck = allSeen(s)
+			onData(async (data) => {
 				s?.forEach(async (s) => {
 					if (data.includes(s)) {
 						warn(doc.id, `<${type}>`, 'Termination criteria seen:', data)
-						seen[s] = true
-						// Check if all have been seen
-						const allSeen = Object.values(seen).reduce(
-							(allSeen, seen) => (allSeen ? true : seen),
-							false as boolean,
-						)
-						if (allSeen) {
-							warn(
-								doc.id,
-								`<${type}>`,
-								'All termination criteria have been seen.',
-							)
-							clearTimeout(t)
-							await connection.end()
-							resolve({
-								result,
-								connection,
-								deviceLog,
-								flashLog,
-							})
-						}
 					}
 				})
+				if (terminateCheck(data)) {
+					warn(doc.id, `<${type}>`, 'All termination criteria have been seen.')
+					clearTimeout(t)
+					await connection.end()
+					resolve({
+						result,
+						connection,
+						deviceLog,
+						flashLog,
+					})
+				}
 			})
 		}
 
