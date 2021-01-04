@@ -1,5 +1,10 @@
 import * as chalk from 'chalk'
-import { Iot } from 'aws-sdk'
+import {
+	DescribeJobCommand,
+	GetJobDocumentCommand,
+	IoTClient,
+	Job,
+} from '@aws-sdk/client-iot'
 import { progress, success, warn } from '../runner/log'
 import { FirmwareCIJobDocument } from './job'
 
@@ -12,12 +17,12 @@ export const wait = async ({
 	interval,
 	jobId,
 }: {
-	iot: Iot
+	iot: IoTClient
 	timeoutInMinutes?: number
 	interval?: number
 	jobId: string
 }): Promise<{
-	job: Iot.Job
+	job: Job
 	jobDocument: FirmwareCIJobDocument
 }> =>
 	new Promise((resolve, reject) => {
@@ -29,11 +34,12 @@ export const wait = async ({
 		let i: NodeJS.Timeout | undefined = undefined
 		const checkJob = async () => {
 			try {
-				const { job } = await iot
-					.describeJob({
+				const { job } = await iot.send(
+					new DescribeJobCommand({
 						jobId,
-					})
-					.promise()
+					}),
+				)
+
 				if (job === undefined) throw new Error(`Job ${jobId} not found.`)
 				if (job.status === 'COMPLETED') {
 					clearTimeout(t)
@@ -52,11 +58,11 @@ export const wait = async ({
 						job,
 						jobDocument: JSON.parse(
 							(
-								await iot
-									.getJobDocument({
+								await iot.send(
+									new GetJobDocumentCommand({
 										jobId: job.jobId as string,
-									})
-									.promise()
+									}),
+								)
 							).document as string,
 						) as FirmwareCIJobDocument,
 					})

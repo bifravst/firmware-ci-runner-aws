@@ -1,6 +1,7 @@
 import { v4 } from 'uuid'
 import * as chalk from 'chalk'
-import { S3, Iot } from 'aws-sdk'
+import { createPresignedPost } from '@aws-sdk/s3-presigned-post'
+import { CreateJobCommand, IoTClient } from '@aws-sdk/client-iot'
 import { promises as fs } from 'fs'
 import { FirmwareCIJobDocument } from './job'
 
@@ -15,7 +16,6 @@ export const schedule = async ({
 	target,
 	network,
 	secTag,
-	s3,
 	bucketName,
 	region,
 	ciDeviceArn,
@@ -25,8 +25,7 @@ export const schedule = async ({
 	abortOn,
 	endOn,
 }: {
-	s3: S3
-	iot: Iot
+	iot: IoTClient
 	firmwareUrl: string
 	certificateJSON: string
 	target: string
@@ -43,7 +42,7 @@ export const schedule = async ({
 	jobId = jobId ?? v4()
 	console.log('')
 	console.log(chalk.gray('  Job ID:    '), chalk.yellow(jobId))
-	const { url, fields } = s3.createPresignedPost({
+	const { url, fields } = createPresignedPost({
 		Bucket: bucketName,
 		Fields: {
 			key: `${jobId}.json`,
@@ -71,8 +70,8 @@ export const schedule = async ({
 		endOn,
 	}
 
-	await iot
-		.createJob({
+	await iot.send(
+		new CreateJobCommand({
 			jobId,
 			targets: [ciDeviceArn],
 			document: JSON.stringify(jobDocument),
@@ -81,8 +80,8 @@ export const schedule = async ({
 			timeoutConfig: {
 				inProgressTimeoutInMinutes: 60,
 			},
-		})
-		.promise()
+		}),
+	)
 
 	console.log(
 		chalk.green('Job'),
