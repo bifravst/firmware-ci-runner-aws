@@ -44,12 +44,9 @@ export const schedule = async ({
 }): Promise<FirmwareCIJobDocument> => {
 	jobId = jobId ?? v4()
 	console.log('')
-	console.log(chalk.gray('  Job ID:    '), chalk.yellow(jobId))
-	const { url, fields } = createPresignedPost(s3, {
+	const { url, fields } = await createPresignedPost(s3, {
 		Bucket: bucketName,
-		Fields: {
-			key: `${jobId}.json`,
-		},
+		Key: `${jobId}.json`,
 	})
 
 	const { caCert, clientCert, privateKey } = JSON.parse(
