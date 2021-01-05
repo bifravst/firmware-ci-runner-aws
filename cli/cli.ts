@@ -2,7 +2,7 @@ import * as program from 'commander'
 import * as chalk from 'chalk'
 import { scheduleJobCommand } from './commands/scheduleJob'
 import { waitForJobCommand } from './commands/waitForJob'
-import { STS } from 'aws-sdk'
+import { GetCallerIdentityCommand, STSClient } from '@aws-sdk/client-sts'
 import { promises as fs } from 'fs'
 import { runCommand } from './commands/run'
 import * as path from 'path'
@@ -25,9 +25,9 @@ const CLI = async ({ isCI }: { isCI: boolean }) => {
 	)
 	program.version(version)
 
-	const { Account: accountId } = await new STS({ region })
-		.getCallerIdentity()
-		.promise()
+	const { Account: accountId } = await new STSClient({
+		region,
+	}).send(new GetCallerIdentityCommand({}))
 
 	const commands = [
 		scheduleJobCommand({

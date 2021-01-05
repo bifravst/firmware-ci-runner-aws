@@ -1,6 +1,5 @@
 import { CommandDefinition } from './CommandDefinition'
-import * as chalk from 'chalk'
-import { Iot } from 'aws-sdk'
+import { IoTClient } from '@aws-sdk/client-iot'
 import {
 	waitDefaultIntervalInSeconds,
 	waitDefaultTimeoutInMinutes,
@@ -24,14 +23,11 @@ export const waitForJobCommand = ({
 		},
 	],
 	action: async (jobId, { timeout, interval }) => {
-		console.log(chalk.gray('  Job ID:    '), chalk.yellow(jobId))
 		console.log('')
-		const iot = new Iot({
-			region,
-		})
-
 		await wait({
-			iot,
+			iot: new IoTClient({
+				region,
+			}),
 			interval,
 			timeoutInMinutes: timeout,
 			jobId,
