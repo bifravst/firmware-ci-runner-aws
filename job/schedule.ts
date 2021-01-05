@@ -4,6 +4,7 @@ import { createPresignedPost } from '@aws-sdk/s3-presigned-post'
 import { CreateJobCommand, IoTClient } from '@aws-sdk/client-iot'
 import { promises as fs } from 'fs'
 import { FirmwareCIJobDocument } from './job'
+import { S3Client } from '@aws-sdk/client-s3'
 
 const queryString = (s: Record<string, any>): string =>
 	Object.entries(s)
@@ -18,6 +19,7 @@ export const schedule = async ({
 	secTag,
 	bucketName,
 	region,
+	s3,
 	ciDeviceArn,
 	jobId,
 	iot,
@@ -33,6 +35,7 @@ export const schedule = async ({
 	secTag: number
 	bucketName: string
 	region: string
+	s3: S3Client
 	ciDeviceArn: string
 	jobId?: string
 	timeoutInMinutes?: number
@@ -42,7 +45,7 @@ export const schedule = async ({
 	jobId = jobId ?? v4()
 	console.log('')
 	console.log(chalk.gray('  Job ID:    '), chalk.yellow(jobId))
-	const { url, fields } = createPresignedPost({
+	const { url, fields } = createPresignedPost(s3, {
 		Bucket: bucketName,
 		Fields: {
 			key: `${jobId}.json`,
