@@ -53,7 +53,9 @@ export const runJob = async ({
 	})
 	progress(doc.id, `Setting timeout to ${doc.timeoutInMinutes} minutes`)
 	return new Promise((resolve) => {
+		let done = false
 		const t = setTimeout(async () => {
+			done = true
 			warn(doc.id, 'Timeout reached.')
 			await connection.end()
 			resolve({
@@ -79,15 +81,22 @@ export const runJob = async ({
 					}
 				})
 				if (terminateCheck(data)) {
-					warn(doc.id, `<${type}>`, 'All termination criteria have been seen.')
-					clearTimeout(t)
-					await connection.end()
-					resolve({
-						result,
-						connection,
-						deviceLog,
-						flashLog,
-					})
+					if (!done) {
+						done = true
+						warn(
+							doc.id,
+							`<${type}>`,
+							'All termination criteria have been seen.',
+						)
+						clearTimeout(t)
+						await connection.end()
+						resolve({
+							result,
+							connection,
+							deviceLog,
+							flashLog,
+						})
+					}
 				}
 			})
 		}
