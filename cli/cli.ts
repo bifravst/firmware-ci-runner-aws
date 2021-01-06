@@ -7,6 +7,7 @@ import { promises as fs } from 'fs'
 import { runCommand } from './commands/run'
 import * as path from 'path'
 import { runFromFileCommand } from './commands/runFromFile'
+import { cancelJobCommand } from './commands/cancelJob'
 
 const bucketName = process.env.BUCKET_NAME ?? ''
 const region = process.env.REGION ?? 'us-east-1'
@@ -38,6 +39,7 @@ const CLI = async ({ isCI }: { isCI: boolean }) => {
 		waitForJobCommand({
 			region,
 		}),
+		cancelJobCommand({ region }),
 	]
 
 	if (isCI) {
