@@ -33,7 +33,7 @@
     "@bifravst/firmware-ci": "5.0.1",
     "@serialport/parser-readline": "9.0.1",
     "aws-iot-device-sdk": "2.2.6",
-    "commander": "6.2.1",
+    "commander": "7.0.0",
     "form-data": "3.0.0",
     "node-fetch": "2.6.1",
     "serialport": "9.0.4",
