@@ -10,7 +10,7 @@ import { runFromFileCommand } from './commands/runFromFile'
 import { cancelJobCommand } from './commands/cancelJob'
 
 const bucketName = process.env.BUCKET_NAME ?? ''
-const region = process.env.REGION ?? 'us-east-1'
+const region = process.env.AWS_REGION ?? 'us-east-1'
 const ciDeviceName = process.env.CI_DEVICE ?? ''
 
 const CLI = async ({ isCI }: { isCI: boolean }) => {
