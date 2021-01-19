@@ -32,6 +32,10 @@ export const wait = async ({
 			(timeoutInMinutes ?? waitDefaultTimeoutInMinutes) * 60 * 1000,
 		)
 		let i: NodeJS.Timeout | undefined = undefined
+		const cleanUp = () => {
+			if (i !== undefined) clearInterval(i)
+			clearTimeout(t)
+		}
 		const checkJob = async () => {
 			try {
 				const { job } = await iot.send(
@@ -39,11 +43,12 @@ export const wait = async ({
 						jobId,
 					}),
 				)
-
-				if (job === undefined) throw new Error(`Job ${jobId} not found.`)
+				if (job === undefined) {
+					cleanUp()
+					throw new Error(`Job ${jobId} not found.`)
+				}
 				if (job.status === 'COMPLETED') {
-					clearTimeout(t)
-					if (i !== undefined) clearInterval(i)
+					cleanUp()
 					progress(job.status)
 					if ((job.jobProcessDetails?.numberOfFailedThings ?? 0) > 0) {
 						warn(
@@ -66,6 +71,9 @@ export const wait = async ({
 							).document as string,
 						) as FirmwareCIJobDocument,
 					})
+				} else if (job.status === 'DELETION_IN_PROGRESS') {
+					cleanUp()
+					return reject(new Error(`Job ${jobId} is being deleted.`))
 				} else {
 					progress(
 						chalk.yellow(job.status),
@@ -77,8 +85,7 @@ export const wait = async ({
 				}
 			} catch (err) {
 				warn(chalk.red(err.message))
-				clearTimeout(t)
-				if (i !== undefined) clearInterval(i)
+				cleanUp()
 				return reject(new Error(`Job ${jobId} not found.`))
 			}
 		}
