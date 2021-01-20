@@ -1,5 +1,5 @@
 {
-  "name": "@bifravst/firmware-ci-aws",
+  "name": "@bifravst/firmware-ci-runner-aws",
   "version": "0.0.0-development",
   "description": "Exposes real nRF9160 hardware to be used for end-to-end tests. Runs on AWS.",
   "main": "./dist/export.js",
@@ -10,7 +10,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/bifravst/firmware-ci-aws.git"
+    "url": "git+https://github.com/bifravst/firmware-ci-runner-aws.git"
   },
   "keywords": [
     "Cloud",
@@ -22,9 +22,9 @@
   "author": "Nordic Semiconductor ASA | nordicsemi.no",
   "license": "BSD-3-Clause",
   "bugs": {
-    "url": "https://github.com/bifravst/firmware-ci-aws/issues"
+    "url": "https://github.com/bifravst/firmware-ci-runner-aws/issues"
   },
-  "homepage": "https://github.com/bifravst/firmware-ci-aws#readme",
+  "homepage": "https://github.com/bifravst/firmware-ci-runner-aws#readme",
   "dependencies": {
     "@aws-sdk/client-iot": "3.3.0",
     "@aws-sdk/client-s3": "3.3.0",
