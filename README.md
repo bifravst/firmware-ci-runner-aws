@@ -1,3 +1,6 @@
+> **:truck: moved to https://github.com/NordicSemiconductor/cloud-aws-firmware-ci-runner-js**  
+> :information_source: [more info](https://github.com/bifravst/bifravst/issues/56)
+
 # Firmware CI runner for AWS
 
 [![GitHub Actions](https://github.com/bifravst/firmware-ci-runner-aws/workflows/Test%20and%20Release/badge.svg)](https://github.com/bifravst/firmware-ci-runner-aws/actions)
